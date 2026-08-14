@@ -8,7 +8,7 @@ from app.qbittorrent import QBittorrentClient
 scheduler = BackgroundScheduler()
 JOB_ID = "rss_check"
 
-async def check_rss_feeds():
+async def check_rss_feeds(feed_id: int = None):
     db = SessionLocal()
     settings = db.query(Settings).first()
     if not settings:
@@ -16,7 +16,11 @@ async def check_rss_feeds():
         return
 
     qbit_client = QBittorrentClient(settings.qbit_url, settings.qbit_username, settings.qbit_password)
-    feeds = db.query(RSSFeed).all()
+    
+    if feed_id:
+        feeds = db.query(RSSFeed).filter(RSSFeed.id == feed_id).all()
+    else:
+        feeds = db.query(RSSFeed).all()
 
     for feed in feeds:
         parsed_feed = parse_rss(feed.url, settings.user_agent)

@@ -3,12 +3,17 @@
 
 {% block content %}
     <h1>RSS Feeds</h1>
-    <form action="/add_feed" method="post" class="add-feed-form">
-        <input type="text" name="url" placeholder="RSS Feed URL" required>
-        <input type="text" name="keyword_filter" placeholder="Keyword Filter">
-        <input type="text" name="qbit_category" placeholder="qBitTorrent Category">
-        <button type="submit">Add Feed</button>
-    </form>
+    <div class="header-actions">
+        <form action="/add_feed" method="post" class="add-feed-form">
+            <input type="text" name="url" placeholder="RSS Feed URL" required>
+            <input type="text" name="keyword_filter" placeholder="Keyword Filter">
+            <input type="text" name="qbit_category" placeholder="qBitTorrent Category">
+            <button type="submit">Add Feed</button>
+        </form>
+        <form action="/refresh_all" method="post" style="display:inline; margin-top: 1.5rem;">
+            <button type="submit" class="refresh-all-btn">Refresh All</button>
+        </form>
+    </div>
     <table>
         <thead>
             <tr>

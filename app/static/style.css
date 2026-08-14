@@ -25,6 +25,23 @@ button:hover {
     background-color: #0056b3;
 }
 
+.refresh-all-btn {
+    background-color: #28a745;
+}
+
+.refresh-all-btn:hover {
+    background-color: #218838;
+}
+
+.header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -59,4 +76,17 @@ input[type="text"], input[type="password"], input[type="number"] {
 
 .add-feed-form input {
     margin-bottom: 10px;
+}
+
+.add-feed-form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.add-feed-form input {
+    flex: 1;
+    min-width: 200px;
+    margin-bottom: 0;
 }

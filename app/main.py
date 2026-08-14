@@ -114,6 +114,11 @@ async def update_settings(qbit_url: str = Form(...), qbit_username: str = Form(.
 
 @app.post("/refresh_feed/{feed_id}", response_class=RedirectResponse)
 async def refresh_feed(feed_id: int, db: Session = Depends(get_db)):
+    await check_rss_feeds(feed_id=feed_id)
+    return RedirectResponse(url="/", status_code=303)
+
+@app.post("/refresh_all", response_class=RedirectResponse)
+async def refresh_all(db: Session = Depends(get_db)):
     await check_rss_feeds()
     return RedirectResponse(url="/", status_code=303)
 
