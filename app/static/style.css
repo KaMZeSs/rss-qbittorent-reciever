@@ -90,3 +90,60 @@ input[type="text"], input[type="password"], input[type="number"] {
     min-width: 200px;
     margin-bottom: 0;
 }
+
+/* Action buttons styling */
+.actions {
+    white-space: nowrap;
+}
+
+.actions .btn {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s;
+}
+
+.actions .btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.actions .btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.actions .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.actions .btn-secondary:hover {
+    background-color: #545b62;
+}
+
+.actions .btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.actions .btn-danger:hover {
+    background-color: #c82333;
+}
+
+.actions form {
+    display: inline-block;
+    margin: 0;
+}
+
+.actions form button {
+    padding: 6px 12px;
+    font-size: 13px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}

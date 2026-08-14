@@ -3,7 +3,14 @@
 {% block content %}
     <h1>Edit RSS Feed</h1>
     <a href="/">Back to Feeds</a>
+    {% if request.query_params.get('error') == 'move_failed' %}
+        <div style="color: red; margin-bottom: 10px;">Failed to move/rename folder. Changes not saved. Check if folder is in use or path is accessible.</div>
+    {% endif %}
     <form action="/edit_feed/{{ feed.id }}" method="post">
+        <div>
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" value="{{ feed.title }}" required>
+        </div>
         <div>
             <label for="url">RSS Feed URL</label>
             <input type="text" id="url" name="url" value="{{ feed.url }}" required>

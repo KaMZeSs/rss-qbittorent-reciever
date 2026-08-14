@@ -54,7 +54,7 @@ def get_db():
 
 def sanitize_filename(name: str) -> str:
     """Remove invalid filename characters: \ / : * ? \" < > |"""
-    return re.sub(r'[\\/:*?"<>|]', '_', name)
+    return re.sub(r'[\\/:*?"<>|]', '_', name).strip()
 
 def check_and_migrate_db():
     from sqlalchemy import text

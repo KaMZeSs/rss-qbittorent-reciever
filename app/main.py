@@ -1,6 +1,7 @@
 
 import os
 import sys
+import shutil
 from contextlib import asynccontextmanager
 
 import datetime
@@ -89,24 +90,60 @@ async def edit_feed_page(request: Request, feed_id: int, db: Session = Depends(g
     )
 
 @app.post("/edit_feed/{feed_id}", response_class=RedirectResponse)
-async def edit_feed(feed_id: int, url: str = Form(...), keyword_filter: str = Form(None), download_path: str = Form(None), db: Session = Depends(get_db)):
+async def edit_feed(feed_id: int, title: str = Form(...), url: str = Form(...), keyword_filter: str = Form(None), download_path: str = Form(None), db: Session = Depends(get_db)):
     feed = db.query(RSSFeed).filter(RSSFeed.id == feed_id).first()
     if not feed:
         return RedirectResponse(url="/", status_code=303)
     
     old_download_path = feed.download_path
-    feed.url = url
-    feed.keyword_filter = keyword_filter
-    feed.download_path = download_path
-    db.commit()
+    old_title = feed.title
+    new_title = title
+    new_download_path = download_path
     
-    # If download_path changed, move torrents in qBittorrent
-    if old_download_path != download_path and download_path:
-        settings = db.query(Settings).first()
-        if settings:
-            qbit_client = QBittorrentClient(settings.qbit_url, settings.qbit_username, settings.qbit_password)
-            # Move torrents from old path to new path
-            await qbit_client.move_torrents(old_download_path, download_path)
+    # Sanitize new title for filesystem
+    sanitized_new_title = sanitize_filename(new_title)
+    sanitized_old_title = sanitize_filename(old_title)
+    
+    try:
+        # If download_path changed, move the folder
+        if old_download_path != new_download_path and new_download_path:
+            old_full_path = os.path.join(old_download_path, sanitized_old_title)
+            new_full_path = os.path.join(new_download_path, sanitized_new_title)
+            
+            if os.path.exists(old_full_path):
+                # Create new parent directory if it doesn't exist
+                os.makedirs(new_download_path, exist_ok=True)
+                # Move the folder
+                shutil.move(old_full_path, new_full_path)
+                print(f"Moved folder from {old_full_path} to {new_full_path}")
+            else:
+                print(f"Old folder not found: {old_full_path}")
+        
+        # If title changed (but download_path same), rename the folder
+        elif old_title != new_title and new_download_path:
+            old_full_path = os.path.join(new_download_path, sanitized_old_title)
+            new_full_path = os.path.join(new_download_path, sanitized_new_title)
+            
+            if os.path.exists(old_full_path):
+                os.rename(old_full_path, new_full_path)
+                print(f"Renamed folder from {old_full_path} to {new_full_path}")
+            else:
+                print(f"Folder not found for rename: {old_full_path}")
+        
+        # If both path and title changed, the first condition handles it (move with new name)
+        
+        # Update database
+        feed.title = new_title
+        feed.url = url
+        feed.keyword_filter = keyword_filter
+        feed.download_path = new_download_path
+        db.commit()
+        
+    except Exception as e:
+        print(f"Failed to move/rename folder: {e}")
+        db.rollback()
+        # Return error - could redirect with error message
+        return RedirectResponse(url=f"/edit_feed/{feed_id}?error=move_failed", status_code=303)
     
     return RedirectResponse(url="/", status_code=303)
 
