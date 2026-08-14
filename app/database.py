@@ -1,5 +1,6 @@
 
 import datetime
+import re
 
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import sessionmaker, relationship
@@ -18,7 +19,7 @@ class RSSFeed(Base):
     url = Column(String, unique=True, index=True)
     title = Column(String)
     keyword_filter = Column(String)
-    qbit_category = Column(String)
+    download_path = Column(String)
     history = relationship("RSSHistory", back_populates="feed")
 
 class RSSHistory(Base):
@@ -51,6 +52,10 @@ def get_db():
     finally:
         db.close()
 
+def sanitize_filename(name: str) -> str:
+    """Remove invalid filename characters: \ / : * ? \" < > |"""
+    return re.sub(r'[\\/:*?"<>|]', '_', name)
+
 def check_and_migrate_db():
     from sqlalchemy import text
     with engine.connect() as connection:
@@ -61,4 +66,16 @@ def check_and_migrate_db():
                 print("Database migration: 'created_at' column not found in 'rss_history'. Adding and backfilling.")
                 connection.execute(text("ALTER TABLE rss_history ADD COLUMN created_at DATETIME"))
                 connection.execute(text("UPDATE rss_history SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL"))
+                print("Database migration complete.")
+            
+            # Migration: rename qbit_category to download_path in rss_feeds
+            result = connection.execute(text("PRAGMA table_info(rss_feeds)"))
+            columns = [row[1] for row in result]
+            if 'qbit_category' in columns and 'download_path' not in columns:
+                print("Database migration: renaming 'qbit_category' to 'download_path' in 'rss_feeds'.")
+                connection.execute(text("ALTER TABLE rss_feeds RENAME COLUMN qbit_category TO download_path"))
+                print("Database migration complete.")
+            elif 'download_path' not in columns and 'qbit_category' not in columns:
+                print("Database migration: adding 'download_path' column to 'rss_feeds'.")
+                connection.execute(text("ALTER TABLE rss_feeds ADD COLUMN download_path TEXT"))
                 print("Database migration complete.")

@@ -57,7 +57,7 @@ The Python version used by the project is specified in `.python-version`.
 
    * RSS feed URL
    * Optional keyword filter
-   * qBittorrent category
+   * Download Path
 3. The application will periodically fetch the RSS feed and download new torrents that match the keyword filter.
 4. View the history of parsed torrents for each feed using the **History** button.
 5. Manually trigger a feed refresh using the **Refresh** button.

@@ -7,7 +7,7 @@
         <form action="/add_feed" method="post" class="add-feed-form">
             <input type="text" name="url" placeholder="RSS Feed URL" required>
             <input type="text" name="keyword_filter" placeholder="Keyword Filter">
-            <input type="text" name="qbit_category" placeholder="qBitTorrent Category">
+            <input type="text" name="download_path" placeholder="Download Path (e.g. E:\Anilibria.Top\Autumn 2025)">
             <button type="submit">Add Feed</button>
         </form>
         <form action="/refresh_all" method="post" style="display:inline; margin-top: 1.5rem;">
@@ -20,7 +20,7 @@
                 <th>Title</th>
                 <th>URL</th>
                 <th>Keyword Filter</th>
-                <th>qBitTorrent Category</th>
+                <th>Download Path</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -30,7 +30,7 @@
                 <td>{{ feed.title }}</td>
                 <td>{{ feed.url }}</td>
                 <td>{{ feed.keyword_filter }}</td>
-                <td>{{ feed.qbit_category }}</td>
+                <td>{{ feed.download_path }}</td>
                 <td>
                     <a href="/history/{{ feed.id }}">History</a>
                     <form action="/delete_feed/{{ feed.id }}" method="post" style="display:inline;">

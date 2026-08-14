@@ -9,7 +9,7 @@ from app.qbittorrent import QBittorrentClient
 from app.rss_parser import get_anime_name
 import feedparser
 from app.scheduler import start_scheduler, check_rss_feeds, reschedule_job
-from app.database import get_db, RSSFeed, RSSHistory, Settings, check_and_migrate_db
+from app.database import get_db, RSSFeed, RSSHistory, Settings, check_and_migrate_db, sanitize_filename
 from sqlalchemy.orm import Session
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -59,13 +59,13 @@ async def read_root(request: Request, db: Session = Depends(get_db)):
     )
 
 @app.post("/add_feed", response_class=RedirectResponse)
-async def add_feed(url: str = Form(...), keyword_filter: str = Form(None), qbit_category: str = Form(None), db: Session = Depends(get_db)):
+async def add_feed(url: str = Form(...), keyword_filter: str = Form(None), download_path: str = Form(None), db: Session = Depends(get_db)):
     parsed_feed = feedparser.parse(url)
     if parsed_feed.entries:
         title = get_anime_name(parsed_feed.entries[0].title)
     else:
         title = parsed_feed.feed.title
-    feed = RSSFeed(url=url, title=title, keyword_filter=keyword_filter, qbit_category=qbit_category)
+    feed = RSSFeed(url=url, title=title, keyword_filter=keyword_filter, download_path=download_path)
     db.add(feed)
     db.commit()
     return RedirectResponse(url="/", status_code=303)
@@ -132,7 +132,17 @@ async def download_torrent(history_id: int, db: Session = Depends(get_db)):
     for item in parsed_feed.entries:
         if item.guid == history_item.guid:
             qbit_client = QBittorrentClient(settings.qbit_url, settings.qbit_username, settings.qbit_password)
-            await qbit_client.add_torrent(item.enclosures[0].href, feed.qbit_category)
+            # Sanitize title for filename
+            sanitized_title = sanitize_filename(item.title)
+            # Use download_path as save_path, and .downloading subfolder as download_path
+            save_path = feed.download_path
+            download_path = f"{feed.download_path}\\.downloading" if feed.download_path else None
+            await qbit_client.add_torrent(
+                item.enclosures[0].href,
+                save_path=save_path,
+                download_path=download_path,
+                rename=sanitized_title
+            )
             history_item.downloaded = True
             db.commit()
             break

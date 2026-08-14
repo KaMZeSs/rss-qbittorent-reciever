@@ -1,7 +1,7 @@
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy.orm import Session
-from app.database import SessionLocal, RSSFeed, RSSHistory, Settings
+from app.database import SessionLocal, RSSFeed, RSSHistory, Settings, sanitize_filename
 from app.rss_parser import parse_rss, get_anime_name
 from app.qbittorrent import QBittorrentClient
 
@@ -30,7 +30,16 @@ async def check_rss_feeds(feed_id: int = None):
                 anime_name = get_anime_name(item.title)
                 new_history_item = RSSHistory(feed_id=feed.id, guid=item.guid, title=item.title)
                 if feed.keyword_filter and feed.keyword_filter.lower() in item.title.lower():
-                    await qbit_client.add_torrent(item.enclosures[0].href, feed.qbit_category)
+                    # Sanitize title for filename
+                    sanitized_title = sanitize_filename(anime_name)
+                    # Use download_path as save_path, and .downloading subfolder as download_path
+                    save_path = f"{feed.download_path}\\{sanitized_title}"
+                    download_path = f"{feed.download_path}\\.downloading\\{sanitized_title}" if feed.download_path else None
+                    await qbit_client.add_torrent(
+                        item.enclosures[0].href,
+                        save_path=save_path,
+                        download_path=download_path
+                    )
                     new_history_item.downloaded = True
                 db.add(new_history_item)
     db.commit()
