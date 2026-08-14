@@ -33,6 +33,7 @@
                 <td>{{ feed.download_path }}</td>
                 <td>
                     <a href="/history/{{ feed.id }}">History</a>
+                    <a href="/edit_feed/{{ feed.id }}">Edit</a>
                     <form action="/delete_feed/{{ feed.id }}" method="post" style="display:inline;">
                         <button type="submit">Delete</button>
                     </form>

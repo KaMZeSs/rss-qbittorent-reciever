@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Edit RSS Feed</h1>
+    <a href="/">Back to Feeds</a>
+    <form action="/edit_feed/{{ feed.id }}" method="post">
+        <div>
+            <label for="url">RSS Feed URL</label>
+            <input type="text" id="url" name="url" value="{{ feed.url }}" required>
+        </div>
+        <div>
+            <label for="keyword_filter">Keyword Filter</label>
+            <input type="text" id="keyword_filter" name="keyword_filter" value="{{ feed.keyword_filter }}">
+        </div>
+        <div>
+            <label for="download_path">Download Path</label>
+            <input type="text" id="download_path" name="download_path" value="{{ feed.download_path }}" placeholder="E:\Anilibria.Top\Autumn 2025">
+        </div>
+        <button type="submit">Save Changes</button>
+    </form>
+{% endblock %}

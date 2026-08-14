@@ -77,6 +77,39 @@ async def delete_feed(feed_id: int, db: Session = Depends(get_db)):
     db.commit()
     return RedirectResponse(url="/", status_code=303)
 
+@app.get("/edit_feed/{feed_id}", response_class=HTMLResponse)
+async def edit_feed_page(request: Request, feed_id: int, db: Session = Depends(get_db)):
+    feed = db.query(RSSFeed).filter(RSSFeed.id == feed_id).first()
+    if not feed:
+        return RedirectResponse(url="/", status_code=303)
+    return templates.TemplateResponse(
+        request=request,
+        name="edit_feed.html",
+        context={"feed": feed}
+    )
+
+@app.post("/edit_feed/{feed_id}", response_class=RedirectResponse)
+async def edit_feed(feed_id: int, url: str = Form(...), keyword_filter: str = Form(None), download_path: str = Form(None), db: Session = Depends(get_db)):
+    feed = db.query(RSSFeed).filter(RSSFeed.id == feed_id).first()
+    if not feed:
+        return RedirectResponse(url="/", status_code=303)
+    
+    old_download_path = feed.download_path
+    feed.url = url
+    feed.keyword_filter = keyword_filter
+    feed.download_path = download_path
+    db.commit()
+    
+    # If download_path changed, move torrents in qBittorrent
+    if old_download_path != download_path and download_path:
+        settings = db.query(Settings).first()
+        if settings:
+            qbit_client = QBittorrentClient(settings.qbit_url, settings.qbit_username, settings.qbit_password)
+            # Move torrents from old path to new path
+            await qbit_client.move_torrents(old_download_path, download_path)
+    
+    return RedirectResponse(url="/", status_code=303)
+
 @app.get("/history/{feed_id}", response_class=HTMLResponse)
 async def read_history(request: Request, feed_id: int, db: Session = Depends(get_db)):
     feed = db.query(RSSFeed).filter(RSSFeed.id == feed_id).first()
