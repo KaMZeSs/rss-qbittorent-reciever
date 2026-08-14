@@ -1,0 +1,31 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>History for {{ feed.title }}</h1>
+    <a href="/">Back to Feeds</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Date</th>
+                <th>Downloaded</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in history %}
+            <tr>
+                <td>{{ item.title }}</td>
+                <td>{{ item.created_at | local_time }}</td>
+                <td>{{ "Yes" if item.downloaded else "No" }}</td>
+                <td>
+                    <form action="/download_torrent/{{ item.id }}" method="post">
+                        <button type="submit">Download</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

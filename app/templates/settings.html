@@ -1,0 +1,29 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Settings</h1>
+    <form action="/settings" method="post">
+        <div>
+            <label for="qbit_url">qBitTorrent URL</label>
+            <input type="text" id="qbit_url" name="qbit_url" value="{{ settings.qbit_url if settings else '' }}" required>
+        </div>
+        <div>
+            <label for="qbit_username">qBitTorrent Username</label>
+            <input type="text" id="qbit_username" name="qbit_username" value="{{ settings.qbit_username if settings else '' }}" required>
+        </div>
+        <div>
+            <label for="qbit_password">qBitTorrent Password</label>
+            <input type="password" id="qbit_password" name="qbit_password" value="{{ settings.qbit_password if settings else '' }}" required>
+        </div>
+        <div>
+            <label for="rss_refresh_interval">RSS Refresh Interval (minutes)</label>
+            <input type="number" id="rss_refresh_interval" name="rss_refresh_interval" value="{{ settings.rss_refresh_interval if settings else 30 }}" required>
+        </div>
+        <div>
+            <label for="user_agent">User-Agent</label>
+            <input type="text" id="user_agent" name="user_agent" value="{{ settings.user_agent if settings else '' }}" required>
+        </div>
+        <button type="submit">Save</button>
+    </form>
+{% endblock %}

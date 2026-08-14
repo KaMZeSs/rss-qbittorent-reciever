@@ -1,0 +1,42 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>RSS Feeds</h1>
+    <form action="/add_feed" method="post" class="add-feed-form">
+        <input type="text" name="url" placeholder="RSS Feed URL" required>
+        <input type="text" name="keyword_filter" placeholder="Keyword Filter">
+        <input type="text" name="qbit_category" placeholder="qBitTorrent Category">
+        <button type="submit">Add Feed</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>URL</th>
+                <th>Keyword Filter</th>
+                <th>qBitTorrent Category</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for feed in feeds %}
+            <tr>
+                <td>{{ feed.title }}</td>
+                <td>{{ feed.url }}</td>
+                <td>{{ feed.keyword_filter }}</td>
+                <td>{{ feed.qbit_category }}</td>
+                <td>
+                    <a href="/history/{{ feed.id }}">History</a>
+                    <form action="/delete_feed/{{ feed.id }}" method="post" style="display:inline;">
+                        <button type="submit">Delete</button>
+                    </form>
+                    <form action="/refresh_feed/{{ feed.id }}" method="post" style="display:inline;">
+                        <button type="submit">Refresh</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
